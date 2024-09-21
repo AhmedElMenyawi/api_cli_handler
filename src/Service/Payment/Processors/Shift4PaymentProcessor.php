@@ -14,30 +14,21 @@ class Shift4PaymentProcessor implements PaymentProcessorInterface
     private $logger;
     private $httpClient;
     private $apiUsername;
-    public function __construct(LoggerInterface $logger, HttpClientInterface $httpClient, string $shift4ApiUsername)
+    private $paymentURL;
+    public function __construct(LoggerInterface $logger, HttpClientInterface $httpClient, string $shift4ApiUsername, string $paymentURL)
     {
         $this->logger = $logger;
         $this->httpClient = $httpClient;
         $this->apiUsername = $shift4ApiUsername;
+        $this->paymentURL = $paymentURL;
     }
 
     public function processPayment(TransactionRequest $transactionRequest): array
     {
         // $this->logger->info('Inside Shift4PaymentProcessor');
         try {
-            $requestData = [
-                'amount' => $transactionRequest->getAmount() * 100,
-                'currency' => $transactionRequest->getCurrency(),
-                'card' => [
-                    'number' => $transactionRequest->getCardNumber(),
-                    'expMonth' => $transactionRequest->getCardExpMonth(),
-                    'expYear' => $transactionRequest->getCardExpYear(),
-                    'cvc' => $transactionRequest->getCardCvv(),
-                ],
-                'description' => 'Description we agreed on',
-            ];
-            
-            $response = $this->httpClient->request('POST', 'https://api.shift4.com/charges', [
+            $requestData = $this->prepareRequestData($transactionRequest);
+            $response = $this->httpClient->request('POST', $this->paymentURL, [
                 'auth_basic' => [$this->apiUsername, ''],
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -73,5 +64,20 @@ class Shift4PaymentProcessor implements PaymentProcessorInterface
             ];
         }
         return ['success' => false, 'message' => 'An error occurred, please try again'];
+    }
+
+    private function prepareRequestData(TransactionRequest $transactionRequest)
+    {
+        return [
+            'amount' => (int)$transactionRequest->getAmount() * 100,
+            'currency' => $transactionRequest->getCurrency(),
+            'card' => [
+                'number' => $transactionRequest->getCardNumber(),
+                'expMonth' => $transactionRequest->getCardExpMonth(),
+                'expYear' => $transactionRequest->getCardExpYear(),
+                'cvc' => $transactionRequest->getCardCvv(),
+            ],
+            'description' => 'Description we agreed on',
+        ];
     }
 }

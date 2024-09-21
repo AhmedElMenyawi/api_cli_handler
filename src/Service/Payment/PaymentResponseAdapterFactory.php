@@ -20,13 +20,10 @@ class PaymentResponseAdapterFactory
 
     public function create(string $provider)
     {
-        switch (strtolower($provider)) {
-            case 'shift4':
-                return $this->shift4Adapter;
-            case 'aci':
-                return $this->aciAdapter;
-            default:
-                throw new InvalidArgumentException("Unsupported payment provider: $provider");
-        }
+        return match (strtolower($provider)) {
+            'shift4' => $this->shift4Adapter,
+            'aci' => $this->aciAdapter,
+            default => throw new InvalidArgumentException("Unsupported payment provider: $provider"),
+        };
     }
 }

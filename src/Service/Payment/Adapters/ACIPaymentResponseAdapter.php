@@ -2,6 +2,7 @@
 
 namespace App\Service\Payment\Adapters;
 
+use DateTime;
 use Psr\Log\LoggerInterface;
 use App\DTO\UnifiedTransactionResponse;
 
@@ -13,21 +14,22 @@ class ACIPaymentResponseAdapter
     {
         $this->logger = $logger;
     }
-    
+
     public function returnResponse(array $response): UnifiedTransactionResponse
     {
-        $success = $response['success'];
-
-        $transactionId = $response['id'] ?? ''; 
-        $createdAt = date('Y-m-d H:i:s', $response['created'] ?? time());
-        $amount = ($response['amount'] ?? 0) / 100; 
-        $currency = $response['currency'] ?? 'USD';
-        $cardBin = substr($response['card']['number'] ?? '', 0, 6); 
+        $this->logger->info('responseData processPayment ACIPaymentResponseAdapter: ' . json_encode($response));
+        $success = $response['success'] ?? false;
+        $transactionId = $response['data']['id'] ?? '';
+        $createdAt = DateTime::createFromFormat('Y-m-d H:i:s.uO', $response['data']['timestamp'] ?? '') ?: new DateTime();
+        $createdAt = $createdAt->format('Y-m-d H:i:s');
+        $amount = $response['data']['amount'] ?? 0;
+        $currency = $response['data']['currency'] ?? 'EUR';
+        $cardBin = isset($response['data']['card']['bin']) ? substr($response['data']['card']['bin'], 0, 6) : '';
 
         if ($success) {
             $message = 'Payment processed successfully via ACI';
         } else {
-            $message = $response['error']['message'] ?? 'Payment failed';
+            $message = $response['message'] ?? 'Payment failed, Please try again later';
         }
 
         return new UnifiedTransactionResponse(

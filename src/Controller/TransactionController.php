@@ -25,10 +25,7 @@ class TransactionController extends AbstractController
     public function processTransaction(string $provider, Request $request): JsonResponse
     {
         try {
-            // $this->logger->info('Connected through postman successfully');
             $data = json_decode($request->getContent(), true);
-            // $this->logger->info('Processing transaction with data: ' . json_encode($data));
-
             $response = $this->transactionService->processTransaction($provider, $data);
             if (isset($response['errors'])) {
                 return new JsonResponse(['errors' => $response['errors']], 400);

@@ -12,7 +12,7 @@ class TransactionRequest
      * @Assert\Type(type="numeric", message="Amount must be numeric")
      * @Assert\GreaterThan(value=0, message="Amount must be greater than 0")
      */
-    public ?int $amount;
+    public ?float $amount;
 
     /**
      * @Assert\NotBlank(message="Currency is required")
@@ -31,7 +31,7 @@ class TransactionRequest
      */
     public ?string $cardExpYear;
 
-     /**
+    /**
      * @Assert\NotBlank(message="Card expiration month is required")
      * @Assert\Range(min=1, max=12, notInRangeMessage="Expiration month must be between 1 and 12")
      */
@@ -51,75 +51,81 @@ class TransactionRequest
     {
         $currentYear = (int) date('Y');
         $currentMonth = (int) date('m');
-        
+
         $cardExpYear = (int) $this->cardExpYear;
         $cardExpMonth = (int) $this->cardExpMonth;
-        
-        if ($cardExpYear === $currentYear && $cardExpMonth < $currentMonth) {
-            $context->buildViolation('Expiration month must be in the future if the expiration year is the current year')
-                ->atPath('cardExpMonth')
+
+        if ($cardExpYear < $currentYear) {
+            $context->buildViolation('Expiration year cannot be in the past.')
+                ->atPath('cardExpYear')
                 ->addViolation();
+        } else {
+            if ($cardExpYear === $currentYear && $cardExpMonth < $currentMonth) {
+                $context->buildViolation('Expiration month must be in the future if the expiration year is the current year.')
+                    ->atPath('cardExpMonth')
+                    ->addViolation();
+            }
         }
     }
 
     // Getters and Setters
 
-    public function getAmount(): int
+    public function getAmount()
     {
         return $this->amount;
     }
 
-    public function setAmount(int $amount): void
+    public function setAmount(float $amount)
     {
         $this->amount = $amount;
     }
 
-    public function getCurrency(): string
+    public function getCurrency()
     {
         return $this->currency;
     }
 
-    public function setCurrency(string $currency): void
+    public function setCurrency(string $currency)
     {
         $this->currency = $currency;
     }
 
-    public function getCardNumber(): string
+    public function getCardNumber()
     {
         return $this->cardNumber;
     }
 
-    public function setCardNumber(string $cardNumber): void
+    public function setCardNumber(string $cardNumber)
     {
         $this->cardNumber = $cardNumber;
     }
 
-    public function getCardExpYear(): string
+    public function getCardExpYear()
     {
         return $this->cardExpYear;
     }
 
-    public function setCardExpYear(string $cardExpYear): void
+    public function setCardExpYear(string $cardExpYear)
     {
         $this->cardExpYear = $cardExpYear;
     }
 
-    public function getCardExpMonth(): string
+    public function getCardExpMonth()
     {
         return $this->cardExpMonth;
     }
 
-    public function setCardExpMonth(string $cardExpMonth): void
+    public function setCardExpMonth(string $cardExpMonth)
     {
         $this->cardExpMonth = $cardExpMonth;
     }
 
-    public function getCardCvv(): string
+    public function getCardCvv()
     {
         return $this->cardCvv;
     }
 
-    public function setCardCvv(string $cardCvv): void
+    public function setCardCvv(string $cardCvv)
     {
         $this->cardCvv = $cardCvv;
     }

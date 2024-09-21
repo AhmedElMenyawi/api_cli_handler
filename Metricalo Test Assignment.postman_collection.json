@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "02e00ea8-5216-4ad4-be36-5b6c3158c2cd",
+		"name": "Metricalo Test Assignment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "10967541"
+	},
+	"item": [
+		{
+			"name": "Testing SHIFT4 API Alone",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": {
+						"username": "pr_test_tXHm9qV9qV9bjIRHcQr9PLPa"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\":499,\n  \"currency\" : \"EUR\",\n  \"card\": {\n    \"number\": 4242424242424242,\n    \"expMonth\": 11,\n    \"expYear\": 2027,\n    \"cvc\": \"123\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://api.shift4.com/charges"
+			},
+			"response": []
+		},
+		{
+			"name": "Testing ACI API Alone",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "OGE4Mjk0MTc0YjdlY2IyODAxNGI5Njk5MjIwMDE1Y2N8c3k2S0pzVDg="
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "entityId",
+							"value": "8a8294174b7ecb28014b9699220015ca",
+							"type": "text"
+						},
+						{
+							"key": "amount",
+							"value": "92.00",
+							"type": "text"
+						},
+						{
+							"key": "currency",
+							"value": "EUR",
+							"type": "text"
+						},
+						{
+							"key": "paymentBrand",
+							"value": "VISA",
+							"type": "text"
+						},
+						{
+							"key": "paymentType",
+							"value": "DB",
+							"type": "text"
+						},
+						{
+							"key": "card.number",
+							"value": "4200000000000000",
+							"type": "text"
+						},
+						{
+							"key": "card.holder",
+							"value": "Jane Jones",
+							"type": "text"
+						},
+						{
+							"key": "card.expiryMonth",
+							"value": "05",
+							"type": "text"
+						},
+						{
+							"key": "card.expiryYear",
+							"value": "2034",
+							"type": "text"
+						},
+						{
+							"key": "card.cvv",
+							"value": "123",
+							"type": "text"
+						}
+					]
+				},
+				"url": "https://eu-test.oppwa.com/v1/payments"
+			},
+			"response": []
+		},
+		{
+			"name": "Testing SHIFT4 Local Transaction API",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"card_number\": \"4111111111111111\",\n  \"card_exp_year\": 2024,\n  \"card_exp_month\": 12,\n  \"card_cvv\": \"123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{base_url}}/app/processTransaction/shift4"
+			},
+			"response": []
+		},
+		{
+			"name": "Testing ACI Local Transaction API",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"card_number\": \"4111111111111111\",\n  \"card_exp_year\": 2024,\n  \"card_exp_month\": 12,\n  \"card_cvv\": \"123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{base_url}}/app/processTransaction/aci"
+			},
+			"response": []
+		}
+	]
+}
