@@ -24,6 +24,25 @@ class Shift4PaymentProcessor implements PaymentProcessorInterface
         $this->paymentURL = $paymentURL;
     }
 
+    /**
+     * Processes a payment request using Symfony's HttpClient
+     *
+     * This function prepares the transaction data and sends a POST request to the payment gateway (Shift4) using basic authentication
+     * It handles the response based on the HTTP status code and possible errors, including timeouts and unknown issues
+     * 
+     * If the request is successful, it returns a success message and the payment response data. Otherwise, it logs errors and returns 
+     * appropriate error messages
+     *
+     * @param TransactionRequest $transactionRequest The request object containing transaction details to be processed
+     * 
+     * @return array Returns an array:
+     *               - ['success' => true, 'data' => ..., 'message' => 'Payment processed successfully']: If the payment is successful
+     *               - ['success' => false, 'message' => '...']: If there is an error during the process, such as a timeout or Shift4 API error
+     *
+     * @throws TimeoutException If the request times out (timeout is set to 60 seconds)
+     * @throws Exception If an unexpected error occurs during payment processing
+     */
+
     public function processPayment(TransactionRequest $transactionRequest): array
     {
         try {

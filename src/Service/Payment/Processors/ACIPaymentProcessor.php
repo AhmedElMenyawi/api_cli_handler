@@ -21,6 +21,25 @@ class ACIPaymentProcessor implements PaymentProcessorInterface
         $this->bearerToken = $bearerToken;
         $this->paymentURL = $paymentURL;
     }
+
+    /**
+     * Processes a payment request via cURL using the provided transaction data
+     *
+     * This function prepares the request data, initiates a cURL request to the payment URL, and handles the response
+     * It manages both successful payment responses and error handling, including timeouts and connection issues
+     * 
+     * The response is parsed, and based on the result code, it returns either a success or failure message
+     *
+     * @param TransactionRequest $transactionRequest The request object containing transaction details to be processed
+     * 
+     * @return array Returns an array:
+     *               - ['success' => true, 'message' => '...'] if the payment is successful
+     *               - ['success' => false, 'message' => '...'] if the payment fails or encounters errors
+     *               - Error messages are logged in case of timeouts, cURL errors, or unexpected exceptions
+     *
+     * @throws Exception If an unexpected error occurs during payment processing
+     */
+
     public function processPayment(TransactionRequest $transactionRequest): array
     {
         try {

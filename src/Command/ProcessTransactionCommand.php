@@ -41,6 +41,25 @@ class ProcessTransactionCommand extends Command
             ->addOption('card_cvv', null, InputOption::VALUE_REQUIRED, 'Card CVV');
     }
 
+    /**
+     * Executes the transaction through command
+     *
+     * This function processes a transaction from the CLI. It retrieves the provider and data from the arguments,
+     * calls the transaction service to handle the transaction, and displays the result in the console
+     * 
+     * If the transaction fails, it logs and displays error messages. If the transaction succeeds, it outputs the result in a
+     * formatted JSON structure. In the case of an unexpected error, it logs the error and informs the user via the console
+     *
+     * @param InputInterface $input The input interface used to get the arguments for the command, such as the provider and transaction data
+     * @param OutputInterface $output The output interface used to display messages in the console
+     * 
+     * @return int Returns the command exit status:
+     *             - Command::SUCCESS if the transaction was processed successfully
+     *             - Command::FAILURE if the transaction failed or an unexpected error occurred
+     *
+     * @throws Exception If an unexpected error occurs during the execution of the command
+     */
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {

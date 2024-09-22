@@ -52,9 +52,25 @@ class TransactionRequest
     public ?string $cardCvv;
 
     /**
+     * Validates the card expiration date
+     *
+     * This function is used as an extra layer of validation to ensure that:
+     * - The expiration year (`cardExpYear`) is not in the past
+     * - If the expiration year is the current year, the expiration month (`cardExpMonth`) must be in the future
+     * 
+     * This method is invoked by Symfony’s Validator component through the `@Assert\Callback` annotation and adds violations
+     * to the `ExecutionContextInterface` if the validation fails
+     *
+     * @param ExecutionContextInterface $context The validation context used to build violations
+     * 
+     * @return void Adds a violation to the context if the expiration date is invalid:
+     *              - If `cardExpYear` is in the past, it adds a violation for `cardExpYear`
+     *              - If `cardExpYear` is the current year and `cardExpMonth` is in the past, it adds a violation for `cardExpMonth`
+     */
+
+    /**
      * @Assert\Callback
      */
-    //Extra layer of validation to make sure that expiration month is in the future if the expiration year is the current year
     public function validateExpiryDate(ExecutionContextInterface $context)
     {
         if ($this->cardExpYear && $this->cardExpMonth) {
@@ -79,7 +95,6 @@ class TransactionRequest
     }
 
     // Getters and Setters
-
     public function getAmount()
     {
         return $this->amount;

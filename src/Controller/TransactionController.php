@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
+use Exception;
 use Psr\Log\LoggerInterface;
-use InvalidArgumentException;
 use App\Service\TransactionService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,6 +21,23 @@ class TransactionController extends AbstractController
         $this->logger = $logger;
     }
 
+    /**
+     * Handles the processing of a transaction request for a specified provider
+     *
+     * This function accepts a POST request to process a transaction based on the provider passed as a parameter
+     * It expects the request body to contain the transaction data in JSON format. The function uses a transaction
+     * service to process the transaction, and based on the response, it returns a JSON response indicating success
+     * or errors
+     *
+     * @param string $provider The transaction provider (e.g., Shift4, ACI)
+     * @param Request $request The incoming HTTP request containing transaction data in JSON format
+     * 
+     * @return JsonResponse Returns a JSON response:
+     *                      - 200: Transaction processed successfully with a message and data
+     *                      - 400: Bad request with error details if there are validation issues or errors during processing
+     *
+     * @throws Exception If the transaction service encounters an exception
+     */
     #[Route('/app/processTransaction/{provider}', name: 'app_transaction_processing', methods: ['POST'])]
     public function processTransaction(string $provider, Request $request): JsonResponse
     {
@@ -32,7 +49,7 @@ class TransactionController extends AbstractController
             } else {
                 return new JsonResponse(['data' => $response['data'], 'message' => 'Transaction processed successfully'], 200);
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (Exception $e) {
             $this->logger->error($e->getMessage());
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
