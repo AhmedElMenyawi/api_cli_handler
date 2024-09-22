@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use App\DTO\TransactionRequest;
 use App\Service\Payment\PaymentProcessorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpClient\Exception\TimeoutException;
 
 
 class Shift4PaymentProcessor implements PaymentProcessorInterface
@@ -25,7 +26,6 @@ class Shift4PaymentProcessor implements PaymentProcessorInterface
 
     public function processPayment(TransactionRequest $transactionRequest): array
     {
-        // $this->logger->info('Inside Shift4PaymentProcessor');
         try {
             $requestData = $this->prepareRequestData($transactionRequest);
             $response = $this->httpClient->request('POST', $this->paymentURL, [
@@ -34,10 +34,10 @@ class Shift4PaymentProcessor implements PaymentProcessorInterface
                     'Content-Type' => 'application/json',
                 ],
                 'json' => $requestData,
+                'timeout' => 60
             ]);
             $statusCode = $response->getStatusCode();
             $responseData = $response->toArray(false);
-            $this->logger->info('responseData processPayment Shift4PaymentProcessor: ' . json_encode($responseData));
             if ($statusCode == 200) {
                 return [
                     'success' => true,
@@ -56,6 +56,11 @@ class Shift4PaymentProcessor implements PaymentProcessorInterface
                     ];
                 }
             }
+        } catch (TimeoutException $e) {
+            return [
+                'success' => false,
+                'message' => 'The request timed out. Please try again later.',
+            ];
         } catch (Exception $e) {
             $this->logger->error('Error during Shift4 payment: ' . $e->getMessage());
             return [

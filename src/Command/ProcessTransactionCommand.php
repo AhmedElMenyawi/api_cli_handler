@@ -4,38 +4,28 @@ namespace App\Command;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-use App\DTO\TransactionRequest;
 use App\Service\TransactionService;
 use Symfony\Component\Console\Command\Command;
-use App\Service\Payment\PaymentProcessorFactory;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Service\Payment\PaymentResponseAdapterFactory;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[AsCommand(
-    name: 'app:process-transaction',
+    name: 'app:processTransaction',
     description: 'Command to process a financial transaction by providing provider name and trx details (transaction & card)',
 )]
 class ProcessTransactionCommand extends Command
 {
     private $transactionService;
     private $logger;
-    private $validator;
-    private $paymentProcessorFactory;
-    private $paymentResponseAdapterFactory;
 
-    public function __construct(TransactionService $transactionService, ValidatorInterface $validator, LoggerInterface $logger,PaymentProcessorFactory $paymentProcessorFactory, PaymentResponseAdapterFactory $paymentResponseAdapterFactory)
+    public function __construct(TransactionService $transactionService, LoggerInterface $logger)
     {
         $this->transactionService = $transactionService;
-        $this->validator = $validator;
         $this->logger = $logger;
-        $this->paymentProcessorFactory = $paymentProcessorFactory;
-        $this->paymentResponseAdapterFactory = $paymentResponseAdapterFactory;
         parent::__construct();
     }
 
@@ -56,33 +46,16 @@ class ProcessTransactionCommand extends Command
         try {
             $io = new SymfonyStyle($input, $output);
             $provider = $input->getArgument('provider');
-            $transactionRequest = $this->mapDTO($input);
-            $errors = $this->validator->validate($transactionRequest);
-            if (count($errors) > 0) {
-                foreach ($errors as $error) {
-                    $io->error($error->getMessage());
+            $data = $this->buildDataFromInput($input);
+            $response = $this->transactionService->processTransaction($provider, $data);
+            if (isset($response['errors'])) {
+                foreach ($response['errors'] as $error) {
+                    $io->error('Transaction failed: ' . $error);
                 }
                 return Command::FAILURE;
-            }
-            //use the transaction service here !
-            $paymentProcessor = $this->paymentProcessorFactory->create($provider);
-            $paymentProcessed = $paymentProcessor->processPayment($transactionRequest);
-
-            $paymentAdapter = $this->paymentResponseAdapterFactory->create($provider);
-            $unifiedResponse = $paymentAdapter->returnResponse($paymentProcessed);
-
-            // Log the processed transaction
-            $this->logger->info('Payment processed: ' . json_encode($unifiedResponse));
-            $this->logger->info('Payment message: ' . $unifiedResponse->message);
-
-            // Return response based on success or failure
-            if ($unifiedResponse->success) {
-                $io->success('Transaction processed successfully');
-                $io->writeln('Transaction Data: ' . json_encode($unifiedResponse->data));
-                return Command::SUCCESS;
             } else {
-                $io->error('Transaction failed: ' . $unifiedResponse->message);
-                return Command::FAILURE;
+                $io->success("Transaction processed successfully\n" . json_encode($response['data'], JSON_PRETTY_PRINT));
+                return Command::SUCCESS;
             }
         } catch (Exception $e) {
             $this->logger->error('Unexpected error: ' . $e->getMessage());
@@ -92,17 +65,16 @@ class ProcessTransactionCommand extends Command
         return Command::FAILURE;
     }
 
-    private function mapDTO(InputInterface $input): TransactionRequest
-{
-    $transactionRequest = new TransactionRequest();
-    $transactionRequest->amount = $input->getOption('amount') ?? null;
-    $transactionRequest->currency = $input->getOption('currency') ?? null;
-    $transactionRequest->cardNumber = $input->getOption('card_number') ?? null;
-    $transactionRequest->cardExpYear = $input->getOption('card_exp_year') ?? null;
-    $transactionRequest->cardExpMonth = $input->getOption('card_exp_month') ?? null;
-    $transactionRequest->cardCvv = $input->getOption('card_cvv') ?? null;
-
-    return $transactionRequest;
-}
-
+    private function buildDataFromInput(InputInterface $input): array
+    {
+        $data = [
+            'amount' => $input->getOption('amount'),
+            'currency' => $input->getOption('currency'),
+            'card_number' => $input->getOption('card_number'),
+            'card_exp_year' => $input->getOption('card_exp_year'),
+            'card_exp_month' => $input->getOption('card_exp_month'),
+            'card_cvv' => $input->getOption('card_cvv')
+        ];
+        return $data;
+    }
 }

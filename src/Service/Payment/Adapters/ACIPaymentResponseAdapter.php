@@ -17,7 +17,6 @@ class ACIPaymentResponseAdapter
 
     public function returnResponse(array $response): UnifiedTransactionResponse
     {
-        $this->logger->info('responseData processPayment ACIPaymentResponseAdapter: ' . json_encode($response));
         $success = $response['success'] ?? false;
         $transactionId = $response['data']['id'] ?? '';
         $createdAt = DateTime::createFromFormat('Y-m-d H:i:s.uO', $response['data']['timestamp'] ?? '') ?: new DateTime();

@@ -7,6 +7,14 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class TransactionRequest
 {
+
+    /**
+     * @Assert\NotBlank(message="Provider is required")
+     * @Assert\Type(type="string", message="Provider must be a string")
+     * @Assert\Choice(choices={"aci", "shift4"}, message="Provider must be one of the following: aci, shift")
+     */
+    public ?string $provider;
+
     /**
      * @Assert\NotBlank(message="Amount is required")
      * @Assert\Type(type="numeric", message="Amount must be numeric")
@@ -49,21 +57,23 @@ class TransactionRequest
     //Extra layer of validation to make sure that expiration month is in the future if the expiration year is the current year
     public function validateExpiryDate(ExecutionContextInterface $context)
     {
-        $currentYear = (int) date('Y');
-        $currentMonth = (int) date('m');
+        if ($this->cardExpYear && $this->cardExpMonth) {
+            $currentYear = (int) date('Y');
+            $currentMonth = (int) date('m');
 
-        $cardExpYear = (int) $this->cardExpYear;
-        $cardExpMonth = (int) $this->cardExpMonth;
+            $cardExpYear = (int) $this->cardExpYear;
+            $cardExpMonth = (int) $this->cardExpMonth;
 
-        if ($cardExpYear < $currentYear) {
-            $context->buildViolation('Expiration year cannot be in the past.')
-                ->atPath('cardExpYear')
-                ->addViolation();
-        } else {
-            if ($cardExpYear === $currentYear && $cardExpMonth < $currentMonth) {
-                $context->buildViolation('Expiration month must be in the future if the expiration year is the current year.')
-                    ->atPath('cardExpMonth')
+            if ($cardExpYear < $currentYear) {
+                $context->buildViolation('Expiration year cannot be in the past.')
+                    ->atPath('cardExpYear')
                     ->addViolation();
+            } else {
+                if ($cardExpYear === $currentYear && $cardExpMonth < $currentMonth) {
+                    $context->buildViolation('Expiration month must be in the future if the expiration year is the current year.')
+                        ->atPath('cardExpMonth')
+                        ->addViolation();
+                }
             }
         }
     }

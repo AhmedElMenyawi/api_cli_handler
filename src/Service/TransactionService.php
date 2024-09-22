@@ -4,7 +4,7 @@ namespace App\Service;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-use App\Dto\TransactionRequest;
+use App\DTO\TransactionRequest;
 use App\Service\Payment\PaymentProcessorFactory;
 use App\Service\Payment\PaymentResponseAdapterFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -27,11 +27,9 @@ class TransactionService
 
     public function processTransaction(string $provider, array $data): array
     {
-        // $this->logger->info('inside processTransaction');
         try {
-            $transactionRequest = $this->mapDTO($data);
+            $transactionRequest = $this->mapDTO($provider,$data);
             $errors = $this->validator->validate($transactionRequest);
-            $this->logger->info("Count of errors : " . count($errors));
             if (count($errors) > 0) {
                 $messages = [];
                 foreach ($errors as $error) {
@@ -43,8 +41,6 @@ class TransactionService
             $paymentProcessed =  $paymentProcessor->processPayment($transactionRequest);
             $paymentAdapter = $this->paymentResponseAdapterFactory->create($provider);
             $unifiedResponse =  $paymentAdapter->returnResponse($paymentProcessed);
-            $this->logger->info('Payment processed: ' . json_encode($unifiedResponse));
-            $this->logger->info('Payment processed: ' . $unifiedResponse->message);
             if ($unifiedResponse->success) {
                 return ['data' => $unifiedResponse->data, 'message' => 'Transaction processed successfully'];
             } else {
@@ -56,9 +52,10 @@ class TransactionService
         }
     }
 
-    private function mapDTO(array $data): TransactionRequest
+    private function mapDTO(string $provider,array $data): TransactionRequest
     {
         $transactionRequest = new TransactionRequest();
+        $transactionRequest->provider = $provider ?? null;
         $transactionRequest->amount = $data['amount'] ?? null;
         $transactionRequest->currency = $data['currency'] ?? null;
         $transactionRequest->cardNumber = $data['card_number'] ?? null;

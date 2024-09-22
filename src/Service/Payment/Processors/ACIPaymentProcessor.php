@@ -29,13 +29,16 @@ class ACIPaymentProcessor implements PaymentProcessorInterface
             $curlRequest = $this->initiateCurlRequest($url, $data);
             $responseData = curl_exec($curlRequest);
             if (curl_errno($curlRequest)) {
+                $curlError = curl_error($curlRequest);
+                if (curl_errno($curlRequest) === CURLE_OPERATION_TIMEDOUT || curl_errno($curlRequest) === CURLE_COULDNT_CONNECT) {
+                    $this->logger->error('Request timed out: ' . $curlError);
+                    return ['success' => false, 'message' => 'Request timed out. Please try again later.'];
+                }
                 $this->logger->error('cURL error: ' . curl_error($curlRequest));
                 return ['success' => false, 'message' => 'Connection error, please try again'];
             } else {
-                $this->logger->info('cURL response: ' . $responseData);
                 $decodedResponse = json_decode($responseData, true);
                 if (isset($decodedResponse['result']['code']) && strpos($decodedResponse['result']['code'], '000.100') === 0) {
-                    $this->logger->info('Payment was successful: ' . $decodedResponse['result']['description']);
                     return ['success' => true, 'message' => $decodedResponse['result']['description'], 'data' => $decodedResponse];
                 } else {
                     $errorCode = $decodedResponse['result']['code'] ?? 'unknown';
@@ -44,13 +47,16 @@ class ACIPaymentProcessor implements PaymentProcessorInterface
                     return ['success' => false, 'message' => $errorMessage];
                 }
             }
-            curl_close($curlRequest);
         } catch (Exception $e) {
             $this->logger->error('Error during ACI payment: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'An error occurred while processing payment through ACI'
             ];
+        } finally {
+            if (isset($curlRequest)) {
+                curl_close($curlRequest);
+            }
         }
         return ['success' => false, 'message' => 'An error occurred, please try again'];
     }
@@ -80,8 +86,10 @@ class ACIPaymentProcessor implements PaymentProcessorInterface
         curl_setopt($curlRequest, CURLOPT_POST, 1);
         curl_setopt($curlRequest, CURLOPT_POSTFIELDS, $data);
         $isProduction = getenv('APP_ENV') === 'prod';
-        curl_setopt($curlRequest, CURLOPT_SSL_VERIFYPEER, $isProduction); 
+        curl_setopt($curlRequest, CURLOPT_SSL_VERIFYPEER, $isProduction);
         curl_setopt($curlRequest, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curlRequest, CURLOPT_TIMEOUT, 60);
+        curl_setopt($curlRequest, CURLOPT_CONNECTTIMEOUT, 60);
         return $curlRequest;
     }
 }
