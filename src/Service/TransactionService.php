@@ -4,6 +4,7 @@ namespace App\Service;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use InvalidArgumentException;
 use App\DTO\TransactionRequest;
 use App\Service\Payment\PaymentProcessorFactory;
 use App\Service\Payment\PaymentResponseAdapterFactory;
@@ -50,8 +51,11 @@ class TransactionService
     public function processTransaction(string $provider, array $data): array
     {
         try {
+            $this->logger->info('Processing provider: ' . $provider);
             $transactionRequest = $this->mapDTO($provider, $data);
             $errors = $this->validator->validate($transactionRequest);
+            $this->logger->info(count($errors));
+
             if (count($errors) > 0) {
                 $messages = [];
                 foreach ($errors as $error) {
@@ -60,6 +64,9 @@ class TransactionService
                 return ['errors' => $messages];
             }
             $paymentProcessor = $this->paymentProcessorFactory->create($provider);
+            if ($paymentProcessor === null) {
+                throw new InvalidArgumentException("Unsupported payment provider : $provider");
+            }
             $paymentProcessed =  $paymentProcessor->processPayment($transactionRequest);
             $paymentAdapter = $this->paymentResponseAdapterFactory->create($provider);
             $unifiedResponse =  $paymentAdapter->returnResponse($paymentProcessed);
@@ -68,10 +75,14 @@ class TransactionService
             } else {
                 return ['errors' => [$unifiedResponse->message]];
             }
+        } catch (InvalidArgumentException $e) {
+            $this->logger->error($e->getMessage());
+            return ['errors' => [$e->getMessage()]];
         } catch (Exception $e) {
             $this->logger->error($e->getMessage());
             return ['errors' => ["An unexpected error occurred."]];
         }
+        return ['errors' => ["An unexpected error occurred."]];
     }
 
     private function mapDTO(string $provider, array $data): TransactionRequest

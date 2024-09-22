@@ -16,7 +16,6 @@ This application processes transactions via both an API and CLI. It supports dif
     - symfony/maker-bundle
     - symfony/http-client
     - symfony/validator
-    - doctrine/annotations
     - phpunit
 
 **Main Functions:**
@@ -71,7 +70,7 @@ This application processes transactions via both an API and CLI. It supports dif
 POST http://127.0.0.1:8000/app/processTransaction/{aci|shift4}
 Request Body:
 {
-  "amount": 100.00,
+  "amount": "100.00",
   "currency": "USD",
   "card_number": "1234567812345678",
   "card_exp_year": "YYYY",

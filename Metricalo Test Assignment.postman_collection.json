@@ -107,7 +107,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"card_number\": \"4111111111111111\",\n  \"card_exp_year\": 2024,\n  \"card_exp_month\": 12,\n  \"card_cvv\": \"123\"\n}",
+					"raw": "{\n  \"amount\": \"100\",\n  \"currency\": \"USD\",\n  \"card_number\": \"4111111111111111\",\n  \"card_exp_year\": \"2024\",\n  \"card_exp_month\": \"12\",\n  \"card_cvv\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -125,7 +125,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"amount\": 100,\n  \"currency\": \"USD\",\n  \"card_number\": \"4111111111111111\",\n  \"card_exp_year\": 2024,\n  \"card_exp_month\": 12,\n  \"card_cvv\": \"123\"\n}",
+					"raw": "{\n  \"amount\": \"100\",\n  \"currency\": \"USD\",\n  \"card_number\": \"4111111111111111\",\n  \"card_exp_year\": \"2024\",\n  \"card_exp_month\": \"12\",\n  \"card_cvv\": \"123\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

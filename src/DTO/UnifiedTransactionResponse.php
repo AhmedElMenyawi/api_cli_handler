@@ -13,7 +13,7 @@ class UnifiedTransactionResponse
         string $message,
         string $transactionId,
         string $createdAt,
-        float $amount,
+        string $amount,
         string $currency,
         string $cardBin,
     ) {
