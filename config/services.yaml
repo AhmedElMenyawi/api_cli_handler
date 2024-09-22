@@ -19,6 +19,25 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
+    App\Service\Payment\Processors\ACIPaymentProcessor:
+        arguments:
+            $logger: '@logger'
+            $paymentURL: '%env(ACI_PAYMENT_URL)%'
+            $entityId: '%env(ACI_ENTITY_ID)%'
+            $bearerToken: '%env(ACI_BEARER_TOKEN)%'
+    App\Service\Payment\Processors\Shift4PaymentProcessor:
+        arguments:
+            $logger: '@logger'
+            $httpClient: '@http_client'
+            $paymentURL: '%env(SHIFT4_PAYMENT_URL)%'
+            $shift4ApiUsername: '%env(SHIFT4_API_USERNAME)%'
+    App\Service\Payment\PaymentProcessorFactory: ~
+    App\Service\Payment\Adapters\Shift4PaymentResponseAdapter:
+        arguments:
+            $logger: '@logger'
+    App\Service\Payment\Adapters\ACIPaymentResponseAdapter:
+        arguments:
+            $logger: '@logger'
+    App\Service\Payment\PaymentResponseAdapterFactory: ~
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
