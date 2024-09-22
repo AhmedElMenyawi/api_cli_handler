@@ -9,7 +9,6 @@ use App\Service\Payment\PaymentProcessorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpClient\Exception\TimeoutException;
 
-
 class Shift4PaymentProcessor implements PaymentProcessorInterface
 {
     private $logger;

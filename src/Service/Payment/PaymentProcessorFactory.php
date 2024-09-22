@@ -3,10 +3,8 @@
 namespace App\Service\Payment;
 
 use InvalidArgumentException;
-use App\Service\Payment\PaymentProcessorInterface;
 use App\Service\Payment\Processors\ACIPaymentProcessor;
 use App\Service\Payment\Processors\Shift4PaymentProcessor;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
     class PaymentProcessorFactory
 {

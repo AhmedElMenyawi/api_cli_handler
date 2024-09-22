@@ -52,9 +52,8 @@ class TransactionService
     {
         try {
             $this->logger->info('Processing provider: ' . $provider);
-            $transactionRequest = $this->mapDTO($provider, $data);
+            $transactionRequest = $this->mapDataToObject($provider, $data); //name change
             $errors = $this->validator->validate($transactionRequest);
-            $this->logger->info(count($errors));
 
             if (count($errors) > 0) {
                 $messages = [];
@@ -85,7 +84,7 @@ class TransactionService
         return ['errors' => ["An unexpected error occurred."]];
     }
 
-    private function mapDTO(string $provider, array $data): TransactionRequest
+    private function mapDataToObject(string $provider, array $data): TransactionRequest
     {
         $transactionRequest = new TransactionRequest();
         $transactionRequest->provider = $provider ?? null;

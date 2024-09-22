@@ -3,7 +3,6 @@
 namespace App\Service\Payment;
 
 use InvalidArgumentException;
-use App\Service\Payment\PaymentResponseAdapterInterface;
 use App\Service\Payment\Adapters\ACIPaymentResponseAdapter;
 use App\Service\Payment\Adapters\Shift4PaymentResponseAdapter;
 

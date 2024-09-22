@@ -51,8 +51,6 @@ This application processes transactions via both an API and CLI. It supports dif
 - https://hub.docker.com/layers/library/php/8.3.11-fpm/images/sha256-8820c0ae3601f7cea8da6e157590d80b7855a77f44768a1d0f4628ae6876d635?context=explore
 
 
-- As I do not have your email to share my postman collection where I got introduced to ACI & SHIFT4 Requests to test the request and resposne myself not only depending on documentatons , and also testing my own endpoints developed so I added "Metricalo Test Assignment.postman_collection.json" which is JSON exported collection from my local postman
-
 **How to run the application:** 
 ### Running locally:
 1 Install dependencies
@@ -65,6 +63,15 @@ This application processes transactions via both an API and CLI. It supports dif
 5 For API requests : start the server (symfony server:start) server will be listening on http://127.0.0.1:8000
 
 ### Running with Docker:
+1 Install Docker
+2 Clone the repo
+3 Build docker image :  docker build -t app_name .
+4 Run docker container : docker run -d -p 9000:9000 app_name
+5 make sure you have .env based on .env.example
+6 For API requests : server will be listening on http://localhost:9000
+
+**Transaction API Documentation:** 
+- Please refer to https://app.swaggerhub.com/apis/MENYAWI73/SHIFT4/1.0.0#/TransactionRequest
 
 ### API Sample:
 POST http://127.0.0.1:8000/app/processTransaction/{aci|shift4}
@@ -81,6 +88,8 @@ Request Body:
 ### CLI Sample:
 php bin/console app:processTransaction {aci|shift4} --amount=100 --currency=USD --card_number=1234567812345678 --card_exp_month=MM --card_exp_year=YYYY --card_cvv=CVV
 
+**Running Tests:** 
+php bin/phpunit tests/test_name.php
 
 **Message:** 
 I would like to take this opportunity to thank you for reviewing my project. Your time and feedback are greatly appreciated, and I hope this project reflects my skills and approach to solving problems effectively
